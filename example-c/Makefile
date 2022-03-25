@@ -6,7 +6,7 @@ native:
 
 # build as webassembly for web
 wasm:
-	emcc main.c -o out/wasm/main.html 
+	emcc main.c -o out/wasm/index.html 
 
 clean:
 	rm -rf out && mkdir out && mkdir out/wasm
