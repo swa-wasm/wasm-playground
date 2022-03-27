@@ -1,15 +1,16 @@
 OUTFOLDER 	= site/out
+SOURCEFOLDER = wasm
+SERVERFOLDER = server
 
+all: build serve
 
 init:
-	go get -u github.com/shurcool/goexec   
+	mkdir $(OUTFOLDER)   
 
 build:
-	GOOS=js GOARCH=wasm go build -o $(OUTFOLDER)/main.wasm .
+	GOOS=js GOARCH=wasm go build -o $(OUTFOLDER)/main.wasm ./$(SOURCEFOLDER)
 
 serve:
-	goexec 'http.ListenAndServe(":8080", http.FileServer(http.Dir("site/")))'
+	go run ./$(SERVERFOLDER)/main.go
 
-run:
-	go run .
 
