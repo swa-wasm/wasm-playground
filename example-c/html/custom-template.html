@@ -15,20 +15,67 @@
       <input type="number" id="fibI-n" />
       <button id="call-wasm-fibI">Call WASM-function fibI</button>
     </div>
+    <div>
+      <button id="benchmark">Benchmark</button>
+    </div>
     <script>
       document.addEventListener("DOMContentLoaded", () => {
         const fib = Module.cwrap("fib", "number", ["number"]);
         const fibI = Module.cwrap("fibI", "number", ["number"]);
-        console.log("READY"),
-          document.querySelector("#call-wasm-fib").addEventListener("click", () => {
-            const n = Number(document.querySelector("#fib-n").value);
-            alert(fib(n));
-          });
+        console.log("READY");
+        document.querySelector("#call-wasm-fib").addEventListener("click", () => {
+          const n = Number(document.querySelector("#fib-n").value);
+          alert(fib(n));
+        });
         document.querySelector("#call-wasm-fibI").addEventListener("click", () => {
           const n = Number(document.querySelector("#fibI-n").value);
           alert(fibI(n));
         });
+
+        document.querySelector("#benchmark").addEventListener("click", () => {
+          const limit = 40;
+          console.log("Run recursive fibonacci benchmark");
+          wasmJsBenchmark(limit, fib, jsFib);
+          console.log("Run iterative fibonacci benchmark");
+          wasmJsBenchmark(40 * limit, fibI, jsFibI);
+        });
       });
+
+      function jsFib(n) {
+        if (n < 2) return 1;
+        return jsFib(n - 1) + jsFib(n - 2);
+      }
+
+      function jsFibI(n) {
+        if (n == 0) return 1;
+        const fibs = [];
+        fibs[0] = 1;
+        fibs[1] = 1;
+        for (let i = 2; i <= n; i++) {
+          fibs[i] = fibs[i - 1] + fibs[i - 2];
+        }
+        return fibs[n];
+      }
+
+      function wasmJsBenchmark(limit, wasmFun, jsFun) {
+        const startTimeWasm = performance.now();
+        for (let i = 0; i < limit; i++) {
+          wasmFun(i);
+        }
+        const endTimeWasm = performance.now();
+        const wasmTime = endTimeWasm - startTimeWasm;
+
+        const startTimeJs = performance.now();
+        for (let i = 0; i < limit; i++) {
+          jsFun(i);
+        }
+        const endTimeJS = performance.now();
+        const jsTime = endTimeJS - startTimeJs;
+
+        console.log("WASM timing: " + wasmTime + " ms");
+        console.log("JS timing: " + jsTime + " ms");
+        console.log("Speedup WASM: " + jsTime / wasmTime);
+      }
     </script>
   </body>
 </html>
