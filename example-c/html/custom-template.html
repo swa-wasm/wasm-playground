@@ -58,23 +58,26 @@
       }
 
       function wasmJsBenchmark(limit, wasmFun, jsFun) {
-        const startTimeWasm = performance.now();
-        for (let i = 0; i < limit; i++) {
-          wasmFun(i);
+        const wasmTimes = [];
+        const jsTimes = [];
+        for (let i = 0; i < 5; i++) {
+          wasmTimes.push(benchmarkRun(limit, wasmFun));
+          jsTimes.push(benchmarkRun(limit, jsFun));
         }
-        const endTimeWasm = performance.now();
-        const wasmTime = endTimeWasm - startTimeWasm;
 
-        const startTimeJs = performance.now();
+        const speedup = jsTimes.map((value, index) => value / wasmTimes[index]);
+        console.log("WASM timing [ms]: " + wasmTimes);
+        console.log("JS timing [ms]: " + jsTimes);
+        console.log("Speedup WASM: " + speedup);
+      }
+
+      function benchmarkRun(limit, fun) {
+        const startTime = performance.now();
         for (let i = 0; i < limit; i++) {
-          jsFun(i);
+          fun(i);
         }
-        const endTimeJS = performance.now();
-        const jsTime = endTimeJS - startTimeJs;
-
-        console.log("WASM timing: " + wasmTime + " ms");
-        console.log("JS timing: " + jsTime + " ms");
-        console.log("Speedup WASM: " + jsTime / wasmTime);
+        const endTime = performance.now();
+        return endTime - startTime;
       }
     </script>
   </body>
