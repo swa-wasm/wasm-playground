@@ -1,14 +1,16 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
+#include <emscripten/emscripten.h>
 
-int fib(int n)
+EMSCRIPTEN_KEEPALIVE int fib(int n)
 {
     if (n < 2)
         return 1;
     return fib(n - 1) + fib(n - 2);
 }
 
-int fibI(int n)
+EMSCRIPTEN_KEEPALIVE int fibI(int n)
 {
     if (n == 0)
         return 1;
@@ -22,25 +24,21 @@ int fibI(int n)
     return fibs[n];
 }
 
-int main()
+EMSCRIPTEN_KEEPALIVE int *bubbleSort(int *data, int length)
 {
-    int array[5] = {0, 1, 2, 3, 4};
-    for (int i = 0; i < 5; i++)
+    bool swapped = false;
+    do
     {
-        printf("Element[%d] = %d\n", i, array[i]);
-    }
-
-    int *dynamic = malloc(1024);
-    printf("malloc allocated\n");
-    int n = 10;
-    for (int i = 0; i < n; i++)
-    {
-        *(dynamic + i) = fib(i);
-        printf("fib(%d) = %d\n", i, *(dynamic + i));
-    }
-
-    printf("fibI(%d) = %d\n", 45, fibI(45));
-
-    free(dynamic);
-    return 0;
+        swapped = false;
+        for (int i = 0; i < length - 1; i++)
+        {
+            if (data[i] <= data[i + 1])
+                continue;
+            int tmp = data[i];
+            data[i] = data[i + 1];
+            data[i + 1] = tmp;
+            swapped = true;
+        }
+    } while (swapped);
+    return data;
 }
