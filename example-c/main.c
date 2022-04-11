@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <emscripten/emscripten.h>
 
 EMSCRIPTEN_KEEPALIVE int fib(int n)
@@ -21,4 +22,23 @@ EMSCRIPTEN_KEEPALIVE int fibI(int n)
         fibs[i] = fibs[i - 1] + fibs[i - 2];
     }
     return fibs[n];
+}
+
+EMSCRIPTEN_KEEPALIVE int *bubbleSort(int *data, int length)
+{
+    bool swapped = false;
+    do
+    {
+        swapped = false;
+        for (int i = 0; i < length - 1; i++)
+        {
+            if (data[i] <= data[i + 1])
+                continue;
+            int tmp = data[i];
+            data[i] = data[i + 1];
+            data[i + 1] = tmp;
+            swapped = true;
+        }
+    } while (swapped);
+    return data;
 }

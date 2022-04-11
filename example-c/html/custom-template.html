@@ -16,69 +16,9 @@
       <button id="call-wasm-fibI">Call WASM-function fibI</button>
     </div>
     <div>
-      <button id="benchmark">Benchmark</button>
+      <button id="benchmark-fibonacci">Benchmark Fibonacci</button>
+      <button id="benchmark-bubblesort">Benchmark BubbleSort</button>
     </div>
-    <script>
-      document.addEventListener("DOMContentLoaded", () => {
-        const fib = Module.cwrap("fib", "number", ["number"]);
-        const fibI = Module.cwrap("fibI", "number", ["number"]);
-        console.log("READY");
-        document.querySelector("#call-wasm-fib").addEventListener("click", () => {
-          const n = Number(document.querySelector("#fib-n").value);
-          alert(fib(n));
-        });
-        document.querySelector("#call-wasm-fibI").addEventListener("click", () => {
-          const n = Number(document.querySelector("#fibI-n").value);
-          alert(fibI(n));
-        });
-
-        document.querySelector("#benchmark").addEventListener("click", () => {
-          const limit = 40;
-          console.log("Run recursive fibonacci benchmark");
-          wasmJsBenchmark(limit, fib, jsFib);
-          console.log("Run iterative fibonacci benchmark");
-          wasmJsBenchmark(40 * limit, fibI, jsFibI);
-        });
-      });
-
-      function jsFib(n) {
-        if (n < 2) return 1;
-        return jsFib(n - 1) + jsFib(n - 2);
-      }
-
-      function jsFibI(n) {
-        if (n == 0) return 1;
-        const fibs = [];
-        fibs[0] = 1;
-        fibs[1] = 1;
-        for (let i = 2; i <= n; i++) {
-          fibs[i] = fibs[i - 1] + fibs[i - 2];
-        }
-        return fibs[n];
-      }
-
-      function wasmJsBenchmark(limit, wasmFun, jsFun) {
-        const wasmTimes = [];
-        const jsTimes = [];
-        for (let i = 0; i < 5; i++) {
-          wasmTimes.push(benchmarkRun(limit, wasmFun));
-          jsTimes.push(benchmarkRun(limit, jsFun));
-        }
-
-        const speedup = jsTimes.map((value, index) => value / wasmTimes[index]);
-        console.log("WASM timing [ms]: " + wasmTimes);
-        console.log("JS timing [ms]: " + jsTimes);
-        console.log("Speedup WASM: " + speedup);
-      }
-
-      function benchmarkRun(limit, fun) {
-        const startTime = performance.now();
-        for (let i = 0; i < limit; i++) {
-          fun(i);
-        }
-        const endTime = performance.now();
-        return endTime - startTime;
-      }
-    </script>
+    <script src="main.js"></script>
   </body>
 </html>
