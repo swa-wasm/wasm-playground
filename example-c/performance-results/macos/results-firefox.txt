@@ -6,3 +6,8 @@ Run iterative fibonacci benchmark
 WASM timing [ms]: 1,2,1,1,1 
 JS timing [ms]: 8,8,7,7,7 
 Speedup WASM: 8,4,7,7,7 
+
+Run bubblesort benchmark 
+WASM timing [ms]: 80,75,75,76,74 
+JS timing [ms]: 214,211,211,210,213 
+Speedup WASM: 2.675,2.8133333333333335,2.8133333333333335,2.763157894736842,2.8783783783783785 
