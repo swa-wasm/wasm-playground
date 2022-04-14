@@ -1,30 +1,45 @@
-FROM gitpod/openvscode-server:latest
+# This image uses gitpods full workspace and extends it with openvscode-server to allow browser-based access
 
-USER root
+FROM gitpod/workspace-full
 
-# Update and install general tools
-RUN apt update -y && apt upgrade -y && apt install -y python3 git cmake build-essential make
+ENV OPENVSCODE_SERVER_VERSION=1.66.1 \
+    OPENVSCODE_SERVER_ROOT=/home/gitpod/.openvscode-server
 
+# Install openvscode-server
+# Code adapted from https://github.com/gitpod-io/openvscode-releases/blob/main/Dockerfile
+RUN arch=$(uname -m) && \
+    if [ "${arch}" = "x86_64" ]; then \
+    arch="x64"; \
+    elif [ "${arch}" = "aarch64" ]; then \
+    arch="arm64"; \
+    elif [ "${arch}" = "armv7l" ]; then \
+    arch="armhf"; \
+    fi && \
+    wget https://github.com/gitpod-io/openvscode-server/releases/download/openvscode-server-v${OPENVSCODE_SERVER_VERSION}/openvscode-server-v${OPENVSCODE_SERVER_VERSION}-linux-${arch}.tar.gz -O openvscode-server.tar.gz && \
+    tar -xzf openvscode-server.tar.gz && \
+    mv openvscode-server-v${OPENVSCODE_SERVER_VERSION}-linux-${arch} ${OPENVSCODE_SERVER_ROOT}
+
+
+ENV TOOLS=/home/gitpod/.tools/
 # Install emscripten
-RUN mkdir /tools && \ 
-    git clone https://github.com/emscripten-core/emsdk.git /tools/emsdk && \ 
-    chmod 777 /tools/emsdk && \
-    cd /tools/emsdk && \
+RUN mkdir .tools && \ 
+    git clone https://github.com/emscripten-core/emsdk.git ${TOOLS}/emsdk && \ 
+    chmod 777 ${TOOLS}/emsdk && \
+    cd ${TOOLS}/emsdk && \
     ./emsdk install latest
 
-# Install go build-tools
-RUN apt install -y golang
-
-USER openvscode-server
-
 # activate emscripten and set path
-RUN cd /tools/emsdk && ./emsdk activate latest
-ENV PATH $PATH:/tools/emsdk/upstream/emscripten:/tools/emsdk
+RUN cd .tools/emsdk && ./emsdk activate latest
+ENV PATH $PATH:${TOOLS}/emsdk/upstream/emscripten:/tools/emsdk
 
-# Image could contain git-repo so that the user does not have to clone it locally
-# BUT: git-credentials are needed to build the image -> could be done in a cloud environment based on logged in user
-#   Image build could probably even be done in a GitHub Action
-# RUN cd /home/workspace && git clone git@github.com:swa-wasm/wasm-playground.git 
+RUN mkdir workspace
 
-# Run this container using: 
-# docker build -t dev-container . && docker run -it --init -p 3000:3000 -v "$(pwd):/home/workspace:cached" dev-container
+# to persist openvscode-server data in mounted directory uncomment
+# ENV HOME=/home/gitpod/workspace
+
+EXPOSE 3000
+
+ENTRYPOINT [ "/bin/sh", "-c", "exec ${OPENVSCODE_SERVER_ROOT}/bin/openvscode-server --host 0.0.0.0 --without-connection-token \"${@}\"", "--" ]
+
+# mount local directories to /home/gitpod/workspace
+# e.g. docker run -it --init -p 3000:3000 -v "$(pwd):/home/gitpod/workspace" <image>
