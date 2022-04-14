@@ -1,0 +1,13 @@
+Run recursive fibonacci benchmark 
+WASM timing [ms]: 711,677,680,677,675 
+JS timing [ms]: 1873,1865,1859,1854,1858 
+Speedup WASM: 2.6343178621659633,2.75480059084195,2.7338235294117648,2.738552437223043,2.7525925925925927 
+Run iterative fibonacci benchmark 
+WASM timing [ms]: 1,2,1,1,1 
+JS timing [ms]: 8,8,7,7,7 
+Speedup WASM: 8,4,7,7,7 
+
+Run bubblesort benchmark 
+WASM timing [ms]: 80,75,75,76,74 
+JS timing [ms]: 214,211,211,210,213 
+Speedup WASM: 2.675,2.8133333333333335,2.8133333333333335,2.763157894736842,2.8783783783783785 
